@@ -1,30 +1,26 @@
 from tkinter import *
-from time import sleep
-from math import sqrt, pi, sin, cos
 
 
 class Element(object):
     _x = int()
     _y = int()
     _mass = float()
+    _radius = float()
     _is_movable = False
-    speed = 1.
+    color = 'red'
 
-    def __init__(self, root, mass=0.):
+    def __init__(self, canvas, mass=0., radius=40):
         self._mass = mass
-        self.__root = root
-        self.photo = PhotoImage(file='image/atom50x50.png')
-        self.body = Label(background='#0F2A33', image=self.photo)
-        self.body.image = self.photo  # hz
-        self.body.pack()
+        self.radius = radius
+        self.__canvas = canvas
+        self.circle = canvas.create_oval(self.radius - 1, self.radius - 1, 1, 1, fill=self.color, width=0)
 
-    def move(self, x=0, y=0):
+    def move(self, x, y):
         if not self._is_movable:
-            return  # later add raise
-        self.body.place_configure(x=x % 600, y=y % 600)
-        self.__root.update()
-        self._x = x
-        self._y = y
+            return
+        self.__canvas.move(self.circle, x, y)
+        self._x = x  # self.__canvas.bbox(self.circle)[0]  # return posX posY x+PosX,y+PosY
+        self._y = y  # self.__canvas.bbox(self.circle)[1]
 
 
 class Sun(Element):
@@ -40,23 +36,15 @@ def main():
     root.maxsize(1000, 1000)
     root.protocol('WM_DELETE_WINDOW', lambda: root.quit())
     root.resizable(False, False)  # розширення вікна по ширині і по висоті
+    canvas = Canvas(root)
+    canvas.config(background='#0F2A33')
 
-    b = Element(root)
+    b = Element(canvas, radius=80)
     b._is_movable = True
-    b.speed = 10.
+    b.move(100, 100)
 
-    c = Element(root)
-    c._is_movable = True
-    c.speed = 1.
-
-    radius = 190
-    cs = [(275 + cos(pi*x/180) * radius, 275 + sin(pi*x/180) * radius) for x in range(0, 360)]
-
-    b.move(275, 275)
-    for x, y in cs:
-        c.move(x, y)
-        sleep(0.01)
-
+    canvas.pack(fill=BOTH, expand=1)
     root.mainloop()
+
 
 main()
